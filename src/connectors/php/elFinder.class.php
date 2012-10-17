@@ -599,7 +599,15 @@ class elFinder {
 					$this->_errorData($_FILES['upload']['name'][$i], 'Invalid name');
 				} elseif (!$this->_isUploadAllow($_FILES['upload']['name'][$i], $_FILES['upload']['tmp_name'][$i])) {
 					$this->_errorData($_FILES['upload']['name'][$i], 'Not allowed file type');					
-				} else {
+				} elseif ( file_exists($dir.DIRECTORY_SEPARATOR.$_FILES['upload']['name'][$i]) ) {
+					$dup = $this->_uniqueName($dir.DIRECTORY_SEPARATOR.$_FILES['upload']['name'][$i]);
+					if (!$this->_copy($dir.DIRECTORY_SEPARATOR.$_FILES['upload']['name'][$i], $dup)) {
+						return $this->_result['error'] = 'Unable to create file copy';
+					}
+					$this->_result['select'] = array($this->_hash($dup));
+					$this->_content($dir, is_dir($dir));
+				}
+				else {
 					$name = $this->_checkName($_FILES['upload']['name'][$i]);
 					$file = $dir.DIRECTORY_SEPARATOR.$name;
 					if (!@move_uploaded_file($_FILES['upload']['tmp_name'][$i], $file)) {
